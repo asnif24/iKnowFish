@@ -5,6 +5,28 @@ Fish Detection by YOLO
 * to do  
 <a href="https://colab.research.google.com/drive/1SZ3dFU82RAPcaYybyFkaJ2YLaKDoq2Yf"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"></a>
 
+## Quick Start
+
+
+## Running the code
+
+### train
+
+### mAp
+
+convert ground truth PASCAL VOC xml to the specified format
+```
+python ./mAP/scripts/extra/convert_gt_xml.py
+```
+convert detection result yolo format to the specified format
+```
+python ./mAP/scripts/extra/convert_dr_yolo.py
+```
+run main.py to calculate mAP
+```
+python ./mAP/main.py
+```
+
 ## Acknowledgements
 
 * [taipingeric/yolo-v4-tf.keras](https://github.com/taipingeric/yolo-v4-tf.keras)  

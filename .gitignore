@@ -1,3 +1,5 @@
 .ipynb_checkpoints
 mAP/output
 mAP/input
+datasets
+notebook/test_*

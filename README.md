@@ -12,7 +12,7 @@ Fish Detection by YOLO
 
 ### train
 
-### mAp
+### mAP
 
 convert ground truth PASCAL VOC xml to the specified format
 ```

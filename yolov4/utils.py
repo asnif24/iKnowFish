@@ -1,9 +1,14 @@
+from hashlib import sha1
+from turtle import shape
 import numpy as np
 import cv2
 import pandas as pd
 import operator
 import matplotlib.pyplot as plt
 import os
+import imgaug as ia
+import imgaug.augmenters as iaa
+from imgaug.augmentables.bbs import BoundingBox, BoundingBoxesOnImage
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.utils import Sequence
 from config import yolo_config
@@ -117,7 +122,7 @@ def draw_bbox(img, detections, cmap, random_color=True, figsize=(10, 10), show_i
         plt.show()
     return img
 
-
+# add data augmentation by HT 
 class DataGenerator(Sequence):
     """
     Generates data for Keras
@@ -128,7 +133,8 @@ class DataGenerator(Sequence):
                  class_name_path,
                  folder_path,
                  max_boxes=100,
-                 shuffle=True):
+                 shuffle=True,
+                 aug=False):
         self.annotation_lines = annotation_lines
         self.class_name_path = class_name_path
         self.num_classes = len([line.strip() for line in open(class_name_path).readlines()])
@@ -141,6 +147,20 @@ class DataGenerator(Sequence):
         self.folder_path = folder_path
         self.max_boxes = max_boxes
         self.on_epoch_end()
+        self.aug = aug
+        self.seq = iaa.Sequential([
+            iaa.Fliplr(0.5), # 50% horizontal flip
+            # iaa.Flipud(0.5), # 50% vertical flip
+            iaa.Add((-40, 40), per_channel=0.5),
+            iaa.Dropout(p=(0, 0.2)),
+            iaa.Affine(
+                rotate=(-45, 45), # random rotate -45 ~ +45 degree
+                shear=(-16,16), # random shear -16 ~ +16 degree
+                # scale={"x": (0.8, 1.2), "y": (0.8, 1.2)}, # scale x, y: 80%~120%
+                scale=(0.3, 1.2), # scale x, y: 80%~120%
+                translate_percent={"x": (-0.2, 0.2), "y": (-0.2, 0.2)}, # translate by -20 to +20 percent (per axis)
+            ),
+        ])
 
     def __len__(self):
         'number of batches per epoch'
@@ -193,7 +213,7 @@ class DataGenerator(Sequence):
         boxes = np.array([np.array(list(map(float, box.split(',')))) for box in line[1:]], dtype=np.float32) # x1y1x2y2
         scale_w, scale_h = w / iw, h / ih
         img = cv2.resize(img, (w, h))
-        image_data = np.array(img) / 255.
+        # image_data = np.array(img) / 255.
 
         # correct boxes coordinates
         box_data = np.zeros((self.max_boxes, 5))
@@ -202,7 +222,31 @@ class DataGenerator(Sequence):
             boxes = boxes[:self.max_boxes]
             boxes[:, [0, 2]] = boxes[:, [0, 2]] * scale_w  # + dx
             boxes[:, [1, 3]] = boxes[:, [1, 3]] * scale_h  # + dy
+            # box_data[:len(boxes)] = boxes
+
+        # add data augmentation by HT 
+        if self.aug:
+            bbs = BoundingBoxesOnImage(
+                [BoundingBox(x1=box[0], y1=box[1], x2=box[2], y2=box[3], label=box[4]) for box in boxes],
+                # shape=img.shape
+                shape=self.target_img_size
+            )
+            img, bbs = self.seq(image=img, bounding_boxes=bbs)
+            bbs = bbs.remove_out_of_image().clip_out_of_image()
+            boxes = np.array([[bb.x1, bb.y1, bb.x2, bb.y2, bb.label] for bb in bbs])
+        
+        # if self.aug:
+        #     bbs = BoundingBoxesOnImage(
+        #         [BoundingBox(x1=box[0], y1=box[1], x2=box[2], y2=box[3], label=box[4]) for box in box_data],
+        #         shape=img.shape
+        #     )
+        #     img, bbs = self.seq(image=img, bounding_boxes=bbs)
+        #     box_data = np.array([[bb.x1, bb.y1, bb.x2, bb.y2, bb.label] for bb in bbs])
+
+
+        if len(boxes) > 0:
             box_data[:len(boxes)] = boxes
+        image_data = np.array(img) / 255.
 
         return image_data, box_data
 

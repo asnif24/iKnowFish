@@ -1,5 +1,6 @@
 .ipynb_checkpoints
-mAP/output
+mAP/output*
 mAP/input
 datasets
 notebook/test_*
+test_result

@@ -134,7 +134,8 @@ class DataGenerator(Sequence):
                  folder_path,
                  max_boxes=100,
                  shuffle=True,
-                 aug=False):
+                 aug=False,
+                 aug_seq=None):
         self.annotation_lines = annotation_lines
         self.class_name_path = class_name_path
         self.num_classes = len([line.strip() for line in open(class_name_path).readlines()])
@@ -148,19 +149,20 @@ class DataGenerator(Sequence):
         self.max_boxes = max_boxes
         self.on_epoch_end()
         self.aug = aug
-        self.seq = iaa.Sequential([
-            iaa.Fliplr(0.5), # 50% horizontal flip
-            # iaa.Flipud(0.5), # 50% vertical flip
-            iaa.Add((-40, 40), per_channel=0.5),
-            iaa.Dropout(p=(0, 0.2)),
-            iaa.Affine(
-                rotate=(-45, 45), # random rotate -45 ~ +45 degree
-                shear=(-16,16), # random shear -16 ~ +16 degree
-                # scale={"x": (0.8, 1.2), "y": (0.8, 1.2)}, # scale x, y: 80%~120%
-                scale=(0.3, 1.2), # scale x, y: 80%~120%
-                translate_percent={"x": (-0.2, 0.2), "y": (-0.2, 0.2)}, # translate by -20 to +20 percent (per axis)
-            ),
-        ])
+        self.seq = aug_seq
+        # self.seq = iaa.Sequential([
+        #     iaa.Fliplr(0.5), # 50% horizontal flip
+        #     # iaa.Flipud(0.5), # 50% vertical flip
+        #     iaa.Add((-40, 40), per_channel=0.5),
+        #     iaa.Dropout(p=(0, 0.2)),
+        #     iaa.Affine(
+        #         rotate=(-45, 45), # random rotate -45 ~ +45 degree
+        #         shear=(-16,16), # random shear -16 ~ +16 degree
+        #         # scale={"x": (0.8, 1.2), "y": (0.8, 1.2)}, # scale x, y: 80%~120%
+        #         scale=(0.3, 1.2), # scale x, y: 80%~120%
+        #         translate_percent={"x": (-0.2, 0.2), "y": (-0.2, 0.2)}, # translate by -20 to +20 percent (per axis)
+        #     ),
+        # ])
 
     def __len__(self):
         'number of batches per epoch'

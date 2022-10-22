@@ -12,6 +12,8 @@ yolo_config = {
 
     # Inference
     'max_boxes': 100,
-    'iou_threshold': 0.413,
-    'score_threshold': 0.3,
+    # 'iou_threshold': 0.413,
+    # 'score_threshold': 0.3,
+    'iou_threshold': 0.3,
+    'score_threshold': 0.45,
 }

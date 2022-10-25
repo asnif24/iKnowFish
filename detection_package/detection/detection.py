@@ -1,6 +1,8 @@
 from detection.utils import DataGenerator, read_annotation_lines
 from detection.models import Yolov4
 from detection.config import yolo_config
+from tqdm import tqdm
+import cv2
 
 class Detector(object):
     
@@ -80,6 +82,25 @@ class Detector(object):
         detections = detections_df.T.to_dict()
         return output_img, detections
 
-    def detect_video(self):
-        """not yet, QQ"""
-        pass
+    def detect_video(self, video_path, output_video_path):
+        """
+        Detect video from path
+        output video path
+        output_video: .mp4
+        """
+        vc = cv2.VideoCapture(video_path)
+        fps = vc.get(cv2.CAP_PROP_FPS)
+        frame_count = int(vc.get(cv2.CAP_PROP_FRAME_COUNT))
+        
+        images = []
+        for i in tqdm(range(frame_count), desc="loading video"):
+            _, frame = vc.read()             # 讀取影片的每一幀
+            images.append(frame)
+        h, w, c = images[0].shape
+        size = (w, h)
+        fourcc = cv2.VideoWriter_fourcc(*'MP4V')
+        video_writer = cv2.VideoWriter(output_video_path, fourcc, fps, size)
+        for img in tqdm(images, desc="fish detection"):
+            output_img, _ = self.detect_image(img)
+            video_writer.write(output_img)
+        video_writer.release()

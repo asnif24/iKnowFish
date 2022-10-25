@@ -1,3 +1,4 @@
+from tkinter import E
 import numpy as np
 import cv2
 import os
@@ -24,7 +25,7 @@ class Yolov4(object):
                  ):
         assert config['img_size'][0] == config['img_size'][1], 'not support yet'
         assert config['img_size'][0] % config['strides'][-1] == 0, 'must be a multiple of last stride'
-        self.class_names = [line.strip() for line in open(class_name_path).readlines()]
+        self.class_names = [line.strip() for line in open(class_name_path, encoding="utf-8").readlines()]
         self.img_size = yolo_config['img_size']
         self.num_classes = len(self.class_names)
         self.weight_path = weight_path
@@ -112,7 +113,7 @@ class Yolov4(object):
                                 initial_epoch=initial_epoch)
     # raw_img: RGB
     def predict_img(self, raw_img, random_color=False, plot_img=False, figsize=(10, 10), show_text=True, return_output=True):
-        print('img shape: ', raw_img.shape)
+        # print('img shape: ', raw_img.shape)
         img = self.preprocess_img(raw_img)
         imgs = np.expand_dims(img, axis=0)
         pred_output = self.inference_model.predict(imgs)

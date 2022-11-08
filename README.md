@@ -2,6 +2,12 @@
 
 Fish Detection by YOLO
 
+![asset/ChaetodonLineolatus_detected.jpg](asset/ChaetodonLineolatus_detected.jpg)
+
+*mean Average Precision
+
+![asset/mAP.png](asset/mAP.png)
+
 * to do  
 <a href="https://colab.research.google.com/drive/1SZ3dFU82RAPcaYybyFkaJ2YLaKDoq2Yf"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"></a>
 

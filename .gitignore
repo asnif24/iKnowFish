@@ -4,3 +4,8 @@ mAP/input
 datasets
 notebook/test_*
 test_result
+*.h5
+*.pyc
+video_download/
+EZlabel_Tutorials/
+final/

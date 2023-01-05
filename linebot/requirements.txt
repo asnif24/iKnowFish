@@ -1,0 +1,8 @@
+
+line-bot-sdk
+flask
+pillow
+tensorflow==2.4.4
+uwsgi
+--upgrade google-cloud-storage
+pyimgur
